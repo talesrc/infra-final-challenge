@@ -1,0 +1,27 @@
+#!/bin/bash
+
+[[ -z $1 ]] && echo "You must provide as an argument a tag following the \
+pattern: your-dockerhub-user/image-name:tag" && exit 1
+
+echo "Building image..."
+docker build -t $1 ./app
+echo "Image built"
+
+echo
+
+echo "Checking if you are logged in on DockerHub"
+username=$(docker info | sed '/Username:/!d;s/.* //')
+
+if [[ $username == "" ]]; then
+  echo "You are not, please login below"
+  echo
+  docker login
+  if [[ $? -eq 1 ]]; then
+    exit 1
+  fi
+else
+  echo "You are already logged in"
+  echo
+fi
+
+docker push $1
