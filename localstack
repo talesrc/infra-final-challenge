@@ -1,0 +1,20 @@
+#!/bin/bash
+kind create cluster --name infra-rotation-challenge \
+--config local-cluster/cluster-config.yaml 
+
+kubectl apply -f \
+https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+
+kubectl wait --namespace ingress-nginx \
+--for=condition=ready pod \
+--selector=app.kubernetes.io/component=controller \
+--timeout=90s
+
+sleep 5
+
+kubectl apply -f k8s-manifests
+
+kubectl wait \
+--for=condition=ready pod \
+--selector=app=static-server \
+--timeout=90s
