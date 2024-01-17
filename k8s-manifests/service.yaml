@@ -1,0 +1,10 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: static-server-svc
+spec:
+  selector:
+    app: static-server
+  ports:
+  - port: 3000
+    targetPort: 3000

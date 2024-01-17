@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: static-server
+  name: static-server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: static-server
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: static-server
+    spec:
+      terminationGracePeriodSeconds: 120
+      containers:
+      - image: taleslfr/infra-final-challenge:0.1.0
+        name: static-server
+        resources:
+          requests:
+            cpu: 0.05
+            memory: 10Mi
+          limits:
+            cpu: 0.15
+            memory: 100Mi
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 3
+          periodSeconds: 3
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: static-server
